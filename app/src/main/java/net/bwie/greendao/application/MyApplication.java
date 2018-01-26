@@ -1,6 +1,7 @@
 package net.bwie.greendao.application;
 
 import android.app.Application;
+import android.util.Log;
 
 import net.bwie.greendao.bean.DaoMaster;
 import net.bwie.greendao.bean.DaoSession;
@@ -33,7 +34,15 @@ public class MyApplication extends Application {
 
     private void initGreenDAO() {
 //        1、创建数据库助手，可以指定数据库文件名，默认版本号1
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, DB_NAME);
+        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, DB_NAME) {
+
+            // 重写数据库版本升级的监听回调
+            @Override
+            public void onUpgrade(Database db, int oldVersion, int newVersion) {
+                super.onUpgrade(db, oldVersion, newVersion);
+                Log.d("1511", "old : " + oldVersion + ", new : " + newVersion);
+            }
+        };
 //                2、用数据库助手帮我们弄一个数据库对象
         Database db = helper.getWritableDb();
 //                3、主干对象根据数据库去创建一个会话
