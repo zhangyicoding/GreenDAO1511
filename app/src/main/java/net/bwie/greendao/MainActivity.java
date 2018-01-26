@@ -66,23 +66,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (view.getId() == R.id.insert_btn) {
             insertData(account, password);
         } else if (view.getId() == R.id.delete_btn) {
-
+            deleteData(account);
         } else if (view.getId() == R.id.update_btn) {
-
+            updateData(account, password);
         } else if (view.getId() == R.id.query_btn) {
             queryData();
         }
     }
 
-    // 插入数据
+    // 插入数据，如果账号重复则不能创建新用户
     private void insertData(String account, String password) {
-        UserBean insertUser = new UserBean();
-        insertUser.set_id(System.currentTimeMillis());
-        insertUser.setAccount(account);
-        insertUser.setPassword(password);
-        // 执行插入数据
-        mDao.insert(insertUser);
-        Toast.makeText(this, "插入成功", Toast.LENGTH_SHORT).show();
+        QueryBuilder<UserBean> builder = mDao.queryBuilder();
+        builder.where(UserBeanDao.Properties.Account.eq(account));
+        Query<UserBean> query = builder.build();
+        UserBean queryUser = query.unique();
+        if (queryUser == null) {
+            UserBean insertUser = new UserBean();
+            insertUser.set_id(System.currentTimeMillis());
+            insertUser.setAccount(account);
+            insertUser.setPassword(password);
+            // 执行插入数据
+            mDao.insert(insertUser);
+            Toast.makeText(this, "插入成功", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "账号已存在，请尝试其他账号", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    // 删除指定账号
+    private void deleteData(String account) {
+        // 先查询指定条件的数据，如果有则删除，否则不用删除
+        QueryBuilder<UserBean> builder = mDao.queryBuilder();
+        // 配置查询条件
+        // 【User表】中的【列】：【account列】，值【等于】我们传来的account
+        builder.where(UserBeanDao.Properties.Account.eq(account));
+        Query<UserBean> query = builder.build();
+        UserBean user = query.unique();// 唯一，代表查询一个对象
+        // 查询结果为null代表查不到该数据
+        if (user != null) {
+            mDao.delete(user);
+            Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // 修改指定账号的密码
+    private void updateData(String account, String password) {
+        QueryBuilder<UserBean> builder = mDao.queryBuilder();
+        builder.where(UserBeanDao.Properties.Account.eq(account));
+        Query<UserBean> query = builder.build();
+        UserBean user = query.unique();
+        if (user != null) {
+            user.setPassword(password);
+            mDao.update(user);
+            Toast.makeText(this, "修改成功", Toast.LENGTH_SHORT).show();
+        }
     }
 
     // 查询全部数据
