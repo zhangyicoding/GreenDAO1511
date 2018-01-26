@@ -1,0 +1,20 @@
+greenDAO
+是一个面向对象思想的ORM数据库框架
+DAO：Data Access Object，数据访问对象，这个对象专门用于执行增删改查等操作
+ORM：Object Relative Mapping：对象关系映射
+数据库文件中有表，表里有列名
+表 -> 类，列名 -> 属性
+今天之后再提到类就相当于在说表，说表也相当于在说类
+
+使用流程
+0、注意：今天要在2个文件中的3个位置导包
+    1、在整个工程下build.gradle导入greenDAO插件，用于自动生成代码
+    2、在app文件夹下build.gradle顶部导入apply，使用该插件
+    3、在在app文件夹下build.gradle正常导入greenDAO框架
+1、一定先去封装数据模型类bean，使用【注解】的方式指定表名、列名等相关信息
+2、AS -> Build -> Make Project，触发插件自动生成必要的相关代码
+    1、DaoMaster：greenDAO框架的主干类
+    2、DaoSession：会话。每一次操作数据库就是一次和数据库交互的行为，我们称作一次会话。
+        官方建议在全局环境中只创建一次会话
+    3、xxxDao：对应了xxx类 -> xxx表，我们使用该对象执行增删改查操作
+    在会话的环境中执行增删改查操作，所以它来自会话
